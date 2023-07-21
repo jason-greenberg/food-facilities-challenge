@@ -3,16 +3,17 @@ from pydantic import BaseModel
 
 class UserBase(BaseModel):
     email: str
-    role: int
 
 class UserCreate(UserBase):
-    ...
+    hashed_password: str
+    is_active: bool = True
 
 class User(UserBase):
     id: int
+    hashed_password: str
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    # necessary config for using an orm with pydantic
+
     class Config:
         orm_mode = True
