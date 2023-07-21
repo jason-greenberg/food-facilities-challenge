@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from db.db_setup import engine
+
 app = FastAPI(
     title="Food Facilities Challenge API",
     version="0.1.0",
