@@ -1,6 +1,12 @@
 from fastapi import FastAPI
+from api import users, locations, permits
 
 from db.db_setup import engine
+from db.models import user, location, permit
+
+user.Base.metadata.create_all(bind=engine)
+location.Base.metadata.create_all(bind=engine)
+permit.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Food Facilities Challenge API",
@@ -15,3 +21,5 @@ app = FastAPI(
         "name": "MIT License"
     }
 )
+
+app.include_router(users.router)
