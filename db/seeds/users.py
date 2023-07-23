@@ -2,15 +2,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from db.models.user import User
 from db.db_setup import environment, SCHEMA
+from api.utils.users import create_user
 
 def seed_users(db: Session):
-    students = [
+    users = [
         User(email='demo@radai.com', password='password', is_active=True),
         # Add more users as necessary
     ]
 
-    for user in students:
-        db.add(user)
+    for user in users:
+        create_user(db=db, user=user)
     
     db.flush()  # Flush the changes without committing to make them available in the same session
 
