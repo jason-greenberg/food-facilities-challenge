@@ -5,9 +5,8 @@ from db.db_setup import environment, SCHEMA
 
 def seed_users(db: Session):
     students = [
-        User(email='student1@aa.io', password='student', is_active=True),
-        User(email='student2@aa.io', password='student', is_active=True),
-        User(email='student3@aa.io', password='student', is_active=True),
+        User(email='demo@radai.com', password='password', is_active=True),
+        # Add more users as necessary
     ]
 
     for user in students:
