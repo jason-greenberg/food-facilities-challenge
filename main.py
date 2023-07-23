@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api import auth_routes, users
+from api import auth_routes, user_routes, permit_routes
 
 from db.db_setup import engine
 from db.models import user, location, permit
@@ -23,4 +23,5 @@ app = FastAPI(
 )
 
 app.include_router(auth_routes.router)
-app.include_router(users.router, prefix="/users")
+app.include_router(user_routes.router, prefix="/users")
+app.include_router(permit_routes.router, prefix="/permits")
