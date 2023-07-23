@@ -3,10 +3,10 @@ from typing import List
 from db.db_setup import get_db
 from pydantic_schemas.user import UserCreate, User
 
-from fastapi import APIRouter, Path, Query, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from api.utils.users import get_user, get_user_by_email, create_user
+from api.utils.users import get_user_by_email, create_user
 from api.auth.token import get_current_active_user
 
 router = APIRouter()
@@ -20,7 +20,6 @@ async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/current", response_model=User)
 async def read_current_user(
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     if current_user is None:
