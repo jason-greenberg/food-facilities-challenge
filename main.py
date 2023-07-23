@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api import users
+from api import auth_routes, users
 
 from db.db_setup import engine
 from db.models import user, location, permit
@@ -22,4 +22,5 @@ app = FastAPI(
     }
 )
 
-app.include_router(users.router)
+app.include_router(auth_routes.router)
+app.include_router(users.router, prefix="/users")

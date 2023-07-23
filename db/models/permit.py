@@ -1,10 +1,13 @@
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from ..db_setup import Base
+from ..db_setup import Base, environment, SCHEMA
 from .mixins import Timestamp
 
 class MobileFoodFacilityPermit(Timestamp, Base):
     __tablename__ = "mobile_food_facility_permits"
+
+    if environment == "production":
+        __table_args__ = {'schema': SCHEMA}
 
     id = Column(Integer, primary_key=True, index=True)
     location_id = Column(Integer, ForeignKey("locations.id"), nullable=False)

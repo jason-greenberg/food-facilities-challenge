@@ -5,8 +5,14 @@ class UserBase(BaseModel):
     email: str
 
 class UserCreate(UserBase):
-    hashed_password: str
+    password: str
     is_active: bool = True
+
+class UserOut(UserBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
 class User(UserBase):
     id: int
@@ -16,4 +22,4 @@ class User(UserBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
