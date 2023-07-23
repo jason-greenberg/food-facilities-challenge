@@ -2,7 +2,6 @@ import typer
 
 from db.db_setup import SessionLocal
 
-from db.db_setup import get_db
 from db.seeds.users import seed_users, undo_users
 
 app = typer.Typer()
