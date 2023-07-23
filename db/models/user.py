@@ -13,3 +13,11 @@ class User(Timestamp, Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+
+    @property
+    def password(self):
+        return self.hashed_password
+    
+    @password.setter
+    def password(self, password):
+        self.hashed_password = password
