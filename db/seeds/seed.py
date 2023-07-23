@@ -1,6 +1,6 @@
 import typer
 from db.db_setup import get_db
-from db.seeds.users import seed_users, seed_profiles, undo_users, undo_profiles
+from db.seeds.users import seed_users, undo_users
 
 app = typer.Typer()
 
