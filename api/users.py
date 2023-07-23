@@ -7,6 +7,7 @@ from fastapi import APIRouter, Path, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from api.utils.users import get_user, get_user_by_email, get_users, create_user
+from api.auth.password_utils import get_password_hash
 
 router = APIRouter()
 
@@ -29,8 +30,3 @@ async def read_user(user_id: int, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found.")
     return user
-
-# @router.get("/users/{user_id}/courses", response_model=List[Course])
-# async def get_courses_by_user_id(user_id: int, db: Session = Depends(get_db)):
-#     courses = get_user_courses(user_id=user_id, db=db)
-#     return courses

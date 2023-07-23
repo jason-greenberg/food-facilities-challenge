@@ -13,12 +13,14 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from db.db_setup import get_db
+from sqlalchemy.orm import Session
+from api.utils.users import get_user_by_email
+from .password_utils import get_password_hash, pwd_context
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def verify_password(plain_password, hashed_password):
@@ -32,8 +34,8 @@ def get_user(db, username: str):
         user_dict = db[username]
         return User(**user_dict)
     
-def authenticate_user(get_db, username: str, password: str):
-    user = get_user(get_db, username)
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
     if not user:
         return False
     

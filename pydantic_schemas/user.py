@@ -5,7 +5,7 @@ class UserBase(BaseModel):
     email: str
 
 class UserCreate(UserBase):
-    hashed_password: str
+    password: str
     is_active: bool = True
 
 class User(UserBase):
