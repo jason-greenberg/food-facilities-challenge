@@ -7,6 +7,9 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 
+from db.db_setup import Base
+from db.models import user, location, permit
+
 # Load .env file
 load_dotenv()
 
@@ -26,7 +29,7 @@ config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
