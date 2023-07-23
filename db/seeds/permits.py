@@ -5,17 +5,27 @@ from db.db_setup import environment, SCHEMA
 from api.utils.permits import create_permit
 from pydantic_schemas.permit import PermitCreate
 
+import os
 import csv
 from datetime import datetime
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(current_dir, 'Mobile_Food_Facility_Permit.csv')
+
 def seed_permits(db: Session):
-    with open('mobile_food_facility_permit.csv', 'r') as file:
+    with open(csv_path, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the header row
         for row in reader:
             # Convert date strings to datetime objects
             approved = datetime.strptime(row[19], '%m/%d/%Y %I:%M:%S %p')
-            received = datetime.strptime(row[21], '%Y%m%d')
+            
+            # Handle instances where 'Received' does not represent a date
+            try:
+                received = datetime.strptime(row[21], '%Y%m%d')
+            except ValueError:
+                received = None
+
             expiration_date = datetime.strptime(row[23], '%m/%d/%Y %I:%M:%S %p')
 
             # Create the PermitCreate instance
