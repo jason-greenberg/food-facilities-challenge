@@ -16,6 +16,7 @@ typer = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 python-multipart = "*"
+requests = "*"
 
 [dev-packages]
 

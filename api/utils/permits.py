@@ -1,9 +1,15 @@
+import os
+import requests
+
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.permit import MobileFoodFacilityPermit
+from db.models.location import Location
 from pydantic_schemas.permit import PermitCreate
+
+POSITIONSTACK_API_KEY = os.getenv('POSITIONSTACK_API_KEY')
 
 # get permit by id
 def get_permit(db: Session, permit_id: int):
@@ -13,13 +19,39 @@ def get_permit(db: Session, permit_id: int):
 def get_permits(db: Session, skip: int = 0, limit: int = 100):
     return db.query(MobileFoodFacilityPermit).offset(skip).limit(limit).all()
 
+
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
-    db_permit = MobileFoodFacilityPermit(**permit.dict())
+    # Use positionstack API to get the geocoding data
+    address = permit.address
+    response = requests.get(f'http://api.positionstack.com/v1/forward', params={
+        'access_key': POSITIONSTACK_API_KEY,
+        'query': address,
+        'fields': 'latitude,longitude',
+    })
+    response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
+    geocoding_data = response.json()
+
+    if geocoding_data['data']:
+        location_data = geocoding_data['data'][0]
+        latitude = location_data['latitude']
+        longitude = location_data['longitude']
+    else:
+        raise ValueError("The positionstack API did not return any results for this address")
+
+    # Create new Location with a specific id
+    location = Location(id=permit.location_id, latitude=latitude, longitude=longitude)
+
+    db.add(location)
+    db.commit()
+
+    # Create new permit associated with location
+    db_permit = MobileFoodFacilityPermit(location_id=location.id, **permit.dict())
     db.add(db_permit)
     db.commit()
     db.refresh(db_permit)
     return db_permit
+
 
 # Search by name of applicant with optional "Status" field filter.
 def get_permits_by_applicant(db: Session, applicant: str, status: str = None):
@@ -72,6 +104,7 @@ def get_nearest_permits(db: Session, latitude: float, longitude: float, status: 
     permits.sort(key=lambda permit: haversine(longitude, latitude, permit.location.longitude, permit.location.latitude))
     return permits[:5]
 
+# Combine multiple conditions into one function
 def get_permits_by_conditions(db: Session, applicant: str = None, status: str = None, address: str = None, latitude: float = None, longitude: float = None, skip: int = 0, limit: int = 100):
     # If there is no condition, simply return the permits with the offset and limit.
     if not any([applicant, status, address, latitude, longitude]):
@@ -107,4 +140,3 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
 
     # For all other cases, apply the offset and limit, then execute the query.
     return query.offset(skip).limit(limit).all()
-
