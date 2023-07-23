@@ -71,3 +71,40 @@ def get_nearest_permits(db: Session, latitude: float, longitude: float, status: 
     # use the haversine function to calculate distances and get the nearest 5 permits
     permits.sort(key=lambda permit: haversine(longitude, latitude, permit.location.longitude, permit.location.latitude))
     return permits[:5]
+
+def get_permits_by_conditions(db: Session, applicant: str = None, status: str = None, address: str = None, latitude: float = None, longitude: float = None, skip: int = 0, limit: int = 100):
+    # If there is no condition, simply return the permits with the offset and limit.
+    if not any([applicant, status, address, latitude, longitude]):
+        return get_permits(db=db, skip=skip, limit=limit)
+    
+    # Start building the query
+    query = db.query(MobileFoodFacilityPermit)
+
+    # Add conditions
+    if applicant:
+        query = query.filter(MobileFoodFacilityPermit.applicant.ilike(f"%{applicant}%"))
+    if status:
+        query = query.filter(MobileFoodFacilityPermit.status == status)
+    if address:
+        query = query.filter(MobileFoodFacilityPermit.address.ilike(f"%{address}%"))
+
+    # If there are latitude and longitude, we need to find the nearest permits
+    if latitude and longitude:
+        permits = query.all()
+
+        # convert the lat/lon strings to float
+        for permit in permits:
+            permit.location.latitude = float(permit.location.latitude)
+            permit.location.longitude = float(permit.location.longitude)
+
+        # use the haversine function to calculate distances and sort the permits by distance
+        permits.sort(key=lambda permit: haversine(longitude, latitude, permit.location.longitude, permit.location.latitude))
+        
+        # Slice the sorted list to only keep the closest ones
+        permits = permits[:limit]
+
+        return permits
+
+    # For all other cases, apply the offset and limit, then execute the query.
+    return query.offset(skip).limit(limit).all()
+
