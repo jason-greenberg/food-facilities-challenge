@@ -19,10 +19,10 @@ def get_permit(db: Session, permit_id: int):
 def get_permits(db: Session, skip: int = 0, limit: int = 100):
     return db.query(MobileFoodFacilityPermit).offset(skip).limit(limit).all()
 
-def log_unresolved_addresses(address):
+def log_unresolved_addresses(permit: PermitCreate):
     with open('unresolved_addresses.csv', 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([address])
+        writer.writerow([value for value in permit.dict().values()])  # write all permit attributes
 
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
@@ -44,8 +44,9 @@ def create_permit(db: Session, permit: PermitCreate):
             permit.longitude = location_data['longitude']
         else:
             # Instead of raising error, log the problem and return None
-            log_unresolved_addresses(address)
+            log_unresolved_addresses(permit)
             return None
+
     # Create new permit
     db_permit = MobileFoodFacilityPermit(**permit.dict())
     db.add(db_permit)
