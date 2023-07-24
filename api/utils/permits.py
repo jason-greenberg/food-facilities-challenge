@@ -105,7 +105,7 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r
 
-# Now we can use this function to get the nearest permits
+# Get the nearest permits
 def get_nearest_permits(db: Session, latitude: float, longitude: float, status: str = "APPROVED"):
     permits = db.query(MobileFoodFacilityPermit).filter(
         MobileFoodFacilityPermit.status == status
@@ -152,10 +152,10 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
         permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
         
         # Slice the sorted list to only keep the 5 closest ones
-        limit = 5
-        permits = permits[:limit]
+        permits = permits[:5]
 
         return permits
 
     # For all other cases, apply the offset and limit, then execute the query.
     return query.offset(skip).limit(limit).all()
+

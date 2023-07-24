@@ -23,6 +23,35 @@ def test_read_permits(auth_headers):
     assert isinstance(response.json(), list)
     assert len(response.json()) <= 10  # As we have limited to 10 permits in this test
 
+def test_get_nearest_food_trucks(auth_headers):
+    lat, lon = 37.76201920035647, -122.42730642251331
+    response = client.get(f"/permits/?latitude={lat}&longitude={lon}&status=APPROVED", headers=auth_headers)
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    # Print length of response
+    print("Length of response: ", len(response.json()))
+    assert len(response.json()) == 5  # As we need to fetch 5 nearest food trucks
+    for permit in response.json():
+        assert permit['status'] == "APPROVED"
+
+
+def test_search_by_street(auth_headers):
+    street_name = "SAN"
+    response = client.get(f"/permits/?address={street_name}", headers=auth_headers)
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    for permit in response.json():
+        assert street_name in permit['address']
+
+def test_search_by_applicant(auth_headers):
+    applicant_name = "The Geez Freeze"
+    response = client.get(f"/permits/?applicant={applicant_name}", headers=auth_headers)
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    for permit in response.json():
+        assert permit['applicant'] == applicant_name
+
+
 def test_create_new_permit(auth_headers):
     permit_data = {
         "location_id": 1571753,
