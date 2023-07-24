@@ -33,7 +33,7 @@ The goal of this project is to provide an API to interact with data related to M
   SECRET_KEY= # Your secret key for JWT token
   ALGORITHM=HS256
   ACCESS_TOKEN_EXPIRE_MINUTES= # Token expiry in minutes
-  POSITIONSTACK_API_KEY= # Your PositionStack API key
+  POSITIONSTACK_API_KEY= # Your PositionStack API key -> https://positionstack.com/signup/free
   ```
 
 4. Build tables:
@@ -69,6 +69,11 @@ The OpenAPI interface provides an interactive exploration of all the available A
 ## Geospatial Search Implementation: Haversine Formula Over PostGIS
 
 In this application, I've implemented geospatial querying using the Haversine Formula. This approach calculates the distances between latitude-longitude pairs, which I found to be simple, easier to understand, and didn't introduce additional dependencies. While aware of the scalability trade-offs for larger data sets and complex geospatial queries, I found the Haversine Formula to be a good fit for the current project scope.
+
+## Geospatial Data Seeding: PositionStack API
+I used the PositionStack API to fetch missing latitude and longitude data during the seeding process automatically. This ensured that no valuable data was omitted due to incomplete geospatial information.
+
+I chose PositionStack for its reliable large volume of free requests and reliability, but I'm aware that for larger datasets or in production, considerations like API rate limiting, data accuracy, and error handling would need to be addressed.
 
 ## Testing
 
