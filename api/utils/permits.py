@@ -21,28 +21,26 @@ def get_permits(db: Session, skip: int = 0, limit: int = 100):
 
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
-    # Use positionstack API to get the geocoding data
-    address = permit.address
-    response = requests.get(f'http://api.positionstack.com/v1/forward', params={
-        'access_key': POSITIONSTACK_API_KEY,
-        'query': address,
-        'fields': 'latitude,longitude',
-    })
-    response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
-    geocoding_data = response.json()
+    # Check if latitude and longitude are provided and are valid
+    if not permit.latitude or not permit.longitude:
+        # Use positionstack API to get the geocoding data
+        address = permit.address
+        response = requests.get('http://api.positionstack.com/v1/forward', params={
+            'access_key': POSITIONSTACK_API_KEY,
+            'query': address,
+            'fields': 'latitude,longitude',
+        })
+        response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
+        geocoding_data = response.json()
 
-    if geocoding_data['data']:
-        location_data = geocoding_data['data'][0]
-        latitude = location_data['latitude']
-        longitude = location_data['longitude']
-    else:
-        raise ValueError("The positionstack API did not return any results for this address")
-
-    db.add(location)
-    db.commit()
-
-    # Create new permit associated with location
-    db_permit = MobileFoodFacilityPermit(location_id=location.id, **permit.dict())
+        if geocoding_data['data']:
+            location_data = geocoding_data['data'][0]
+            permit.latitude = location_data['latitude']
+            permit.longitude = location_data['longitude']
+        else:
+            raise ValueError("The positionstack API did not return any results for this address")
+    # Create new permit
+    db_permit = MobileFoodFacilityPermit(**permit.dict())
     db.add(db_permit)
     db.commit()
     db.refresh(db_permit)
@@ -93,11 +91,11 @@ def get_nearest_permits(db: Session, latitude: float, longitude: float, status: 
 
     # convert the lat/lon strings to float
     for permit in permits:
-        permit.location.latitude = float(permit.location.latitude)
-        permit.location.longitude = float(permit.location.longitude)
+        permit.latitude = float(permit.latitude)
+        permit.longitude = float(permit.longitude)
     
     # use the haversine function to calculate distances and get the nearest 5 permits
-    permits.sort(key=lambda permit: haversine(longitude, latitude, permit.location.longitude, permit.location.latitude))
+    permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
     return permits[:5]
 
 # Combine multiple conditions into one function
@@ -123,11 +121,11 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
 
         # convert the lat/lon strings to float
         for permit in permits:
-            permit.location.latitude = float(permit.location.latitude)
-            permit.location.longitude = float(permit.location.longitude)
+            permit.latitude = float(permit.latitude)
+            permit.longitude = float(permit.longitude)
 
         # use the haversine function to calculate distances and sort the permits by distance
-        permits.sort(key=lambda permit: haversine(longitude, latitude, permit.location.longitude, permit.location.latitude))
+        permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
         
         # Slice the sorted list to only keep the closest ones
         permits = permits[:limit]
