@@ -18,22 +18,37 @@ def seed_permits(db: Session):
         next(reader)  # Skip the header row
         for row in reader:
             # Convert date strings to datetime objects
-            approved = datetime.strptime(row[19], '%m/%d/%Y %I:%M:%S %p')
+            approved = datetime.strptime(row[19], '%m/%d/%Y %I:%M:%S %p') if row[19] else None
             
-            # Handle instances where 'Received' does not represent a date
-            try:
-                received = datetime.strptime(row[21], '%Y%m%d')
-            except ValueError:
-                received = None
+            # Convert received to datetime object if it's not empty
+            received = datetime.strptime(row[21], '%Y%m%d') if row[21] else None
 
-            expiration_date = datetime.strptime(row[23], '%m/%d/%Y %I:%M:%S %p')
+            # Convert expirationdate to datetime object if it's not empty
+            expiration_date = datetime.strptime(row[23], '%m/%d/%Y %I:%M:%S %p') if row[23] else None
+
+            # Convert NOISent to datetime object if it's not empty
+            noisent = datetime.strptime(row[18], '%m/%d/%Y %I:%M:%S %p') if row[18] else None
+
+            # Convert prior_permit to Boolean
+            prior_permit = True if row[22] == '1' else False
+
+            # Handle instances where X or Y does not represent a float
+            try:
+                x = float(row[12])
+            except ValueError:
+                x = None
+
+            try:
+                y = float(row[13])
+            except ValueError:
+                y = None
 
             # Create the PermitCreate instance
             permit_create = PermitCreate(
-                location_id=row[0],
+                location_id=int(row[0]),
                 applicant=row[1],
                 facility_type=row[2],
-                cnn=row[3],
+                cnn=int(row[3]),
                 location_description=row[4],
                 address=row[5],
                 blocklot=row[6],
@@ -42,18 +57,28 @@ def seed_permits(db: Session):
                 permit=row[9],
                 status=row[10],
                 food_items=row[11],
-                x=row[12],
-                y=row[13],
+                x=x,
+                y=y,
+                latitude=float(row[14]),
+                longitude=float(row[15]),
                 schedule=row[16],
-                NOISent=row[18],
+                dayshours=row[17],
+                noisent=noisent,
                 approved=approved,
                 received=received,
-                prior_permit=row[22],
-                expiration_date=expiration_date,
+                priorpermit=prior_permit,
+                expirationdate=expiration_date,
+                location=row[24],
+                fire_prevention_districts=int(row[25]) if row[25] else None,
+                police_districts=int(row[26]) if row[26] else None,
+                supervisor_districts=int(row[27]) if row[27] else None,
+                zip_codes=int(row[28]) if row[28] else None,
+                neighborhoods_old=int(row[29]) if row[29] else None,
             )
 
             # Create the permit
             create_permit(db=db, permit=permit_create)
+
 
 def undo_permits(db: Session):
     if environment == "production":
