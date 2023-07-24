@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Text, inspect
 from sqlalchemy.orm import relationship
 from ..db_setup import Base, SCHEMA, environment
 from .mixins import Timestamp
@@ -21,3 +21,7 @@ class User(Timestamp, Base):
     @password.setter
     def password(self, password):
         self.hashed_password = password
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+            for c in inspect(self).mapper.column_attrs}

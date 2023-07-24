@@ -3,6 +3,8 @@ import requests
 import csv
 
 from math import radians, cos, sin, asin, sqrt
+from dateutil.parser import parse
+from datetime import datetime
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -46,12 +48,23 @@ def create_permit(db: Session, permit: PermitCreate):
             # Instead of raising error, log the problem and return None
             log_unresolved_addresses(permit)
             return None
+        
+    # Parse the datetime fields only if they are not already datetime
+    if permit.expirationdate and not isinstance(permit.expirationdate, datetime):
+        permit.expirationdate = parse(permit.expirationdate)
+    if permit.noisent and not isinstance(permit.noisent, datetime):
+        permit.noisent = parse(permit.noisent)
+    if permit.approved and not isinstance(permit.approved, datetime):
+        permit.approved = parse(permit.approved)
+    if permit.received and not isinstance(permit.received, datetime):
+        permit.received = parse(permit.received)
 
     # Create new permit
-    db_permit = MobileFoodFacilityPermit(**permit.dict())
+    db_permit = MobileFoodFacilityPermit(**permit.model_dump())
     db.add(db_permit)
     db.commit()
     db.refresh(db_permit)
+    print('12345', db_permit.__dict__)
     return db_permit
 
 
@@ -92,7 +105,7 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r
 
-# Now we can use this function to get the nearest permits
+# Get the nearest permits
 def get_nearest_permits(db: Session, latitude: float, longitude: float, status: str = "APPROVED"):
     permits = db.query(MobileFoodFacilityPermit).filter(
         MobileFoodFacilityPermit.status == status
@@ -139,8 +152,7 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
         permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
         
         # Slice the sorted list to only keep the 5 closest ones
-        limit = 5
-        permits = permits[:limit]
+        permits = permits[:5]
 
         return permits
 
