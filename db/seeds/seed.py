@@ -2,8 +2,8 @@ import typer
 
 from db.db_setup import SessionLocal
 
-from db.db_setup import get_db
 from db.seeds.users import seed_users, undo_users
+from db.seeds.permits import seed_permits, undo_permits
 
 app = typer.Typer()
 
@@ -12,6 +12,7 @@ def seed():
     db = SessionLocal()
     try:
         seed_users(db)
+        seed_permits(db)
         db.commit()
     finally:
         db.close()
@@ -21,6 +22,7 @@ def undo():
     db = SessionLocal()
     try:
         undo_users(db)
+        undo_permits(db)
         db.commit()
     finally:
         db.close()
