@@ -22,7 +22,7 @@ def get_permits(db: Session, skip: int = 0, limit: int = 100):
 def log_unresolved_addresses(permit: PermitCreate):
     with open('unresolved_addresses.csv', 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([value for value in permit.dict().values()])  # write all permit attributes
+        writer.writerow([value for value in permit.model_dump().values()])  # write all permit attributes
 
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
