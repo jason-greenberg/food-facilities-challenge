@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from datetime import datetime
 from pydantic import BaseModel, validator
 from dateutil.parser import parse
@@ -42,8 +42,10 @@ class PermitBase(BaseModel):
 
 class PermitCreate(PermitBase):
     @validator('expirationdate', 'noisent', 'approved', 'received', pre=True, allow_reuse=True)
-    def parse_date(cls, v):
-        return parse(v)
+    def parse_date(cls, v: Union[datetime, str]):
+        if isinstance(v, str):
+            return parse(v)
+        return v
 
 class PermitOut(PermitBase):
     noisent: Optional[str]

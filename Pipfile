@@ -47,6 +47,7 @@ typing-extensions = "==4.7.1"
 urllib3 = "==1.26.16"
 uvicorn = "==0.23.1"
 python-dateutil = "*"
+httpx = "*"
 
 [dev-packages]
 
