@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 uvicorn = "*"
 fastapi = "*"
-pydantic = "*"
+pydantic = "==1.10.11"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 sqlalchemy-utils = "*"
@@ -17,6 +17,9 @@ python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 python-multipart = "*"
 requests = "*"
+pytest = "*"
+pytest-mock = "*"
+urllib3 = "<2.0"
 
 [dev-packages]
 

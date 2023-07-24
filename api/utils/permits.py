@@ -22,7 +22,7 @@ def get_permits(db: Session, skip: int = 0, limit: int = 100):
 def log_unresolved_addresses(permit: PermitCreate):
     with open('unresolved_addresses.csv', 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([value for value in permit.dict().values()])  # write all permit attributes
+        writer.writerow([value for value in permit.model_dump().values()])  # write all permit attributes
 
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
@@ -94,7 +94,7 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # Now we can use this function to get the nearest permits
 def get_nearest_permits(db: Session, latitude: float, longitude: float, status: str = "APPROVED"):
-    permits = db.query(MobileFoodFacilityPermit).join(MobileFoodFacilityPermit.location).filter(
+    permits = db.query(MobileFoodFacilityPermit).filter(
         MobileFoodFacilityPermit.status == status
     ).all()
 
@@ -126,7 +126,7 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
     if address:
         query = query.filter(MobileFoodFacilityPermit.address.ilike(f"%{address}%"))
 
-    # If there are latitude and longitude, we need to find the nearest permits
+    # If there are latitude and longitude, we return nearest permits
     if latitude and longitude:
         permits = query.all()
 
