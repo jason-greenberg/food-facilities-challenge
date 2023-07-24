@@ -158,4 +158,3 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
 
     # For all other cases, apply the offset and limit, then execute the query.
     return query.offset(skip).limit(limit).all()
-
