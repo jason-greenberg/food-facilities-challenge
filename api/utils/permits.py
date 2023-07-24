@@ -126,7 +126,7 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
     if address:
         query = query.filter(MobileFoodFacilityPermit.address.ilike(f"%{address}%"))
 
-    # If there are latitude and longitude, we need to find the nearest permits
+    # If there are latitude and longitude, we return nearest permits
     if latitude and longitude:
         permits = query.all()
 
