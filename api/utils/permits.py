@@ -94,7 +94,7 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # Now we can use this function to get the nearest permits
 def get_nearest_permits(db: Session, latitude: float, longitude: float, status: str = "APPROVED"):
-    permits = db.query(MobileFoodFacilityPermit).join(MobileFoodFacilityPermit.location).filter(
+    permits = db.query(MobileFoodFacilityPermit).filter(
         MobileFoodFacilityPermit.status == status
     ).all()
 
