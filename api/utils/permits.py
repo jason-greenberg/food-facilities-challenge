@@ -3,6 +3,8 @@ import requests
 import csv
 
 from math import radians, cos, sin, asin, sqrt
+from dateutil.parser import parse
+from datetime import datetime
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -46,12 +48,23 @@ def create_permit(db: Session, permit: PermitCreate):
             # Instead of raising error, log the problem and return None
             log_unresolved_addresses(permit)
             return None
+        
+    # Parse the datetime fields only if they are not already datetime
+    if permit.expirationdate and not isinstance(permit.expirationdate, datetime):
+        permit.expirationdate = parse(permit.expirationdate)
+    if permit.noisent and not isinstance(permit.noisent, datetime):
+        permit.noisent = parse(permit.noisent)
+    if permit.approved and not isinstance(permit.approved, datetime):
+        permit.approved = parse(permit.approved)
+    if permit.received and not isinstance(permit.received, datetime):
+        permit.received = parse(permit.received)
 
     # Create new permit
-    db_permit = MobileFoodFacilityPermit(**permit.dict())
+    db_permit = MobileFoodFacilityPermit(**permit.model_dump())
     db.add(db_permit)
     db.commit()
     db.refresh(db_permit)
+    print('12345', db_permit.__dict__)
     return db_permit
 
 

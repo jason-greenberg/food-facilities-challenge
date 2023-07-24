@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 class PermitBase(BaseModel):
     location_id: int
@@ -35,6 +35,21 @@ class PermitBase(BaseModel):
 
 class PermitCreate(PermitBase):
     pass
+
+class PermitOut(PermitBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    @root_validator(pre=True)
+    def parse_datetime(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        for field in ["noisent", "approved", "received", "expirationdate", "created_at", "updated_at"]:
+            if field in values and isinstance(values[field], datetime):
+                values[field] = values[field].isoformat()
+        return values
+
+    class Config:
+        orm_mode = True
 
 class Permit(PermitBase):
     id: int

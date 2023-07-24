@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, inspect
 from sqlalchemy.orm import relationship
 from ..db_setup import Base, environment, SCHEMA
 from .mixins import Timestamp
@@ -39,3 +39,7 @@ class MobileFoodFacilityPermit(Timestamp, Base):
     supervisor_districts = Column(Integer, nullable=True)
     zip_codes = Column(Integer, nullable=True)
     neighborhoods_old = Column(Integer, nullable=True)
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+            for c in inspect(self).mapper.column_attrs}
