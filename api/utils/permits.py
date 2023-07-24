@@ -107,8 +107,8 @@ def get_nearest_permits(db: Session, latitude: float, longitude: float, status: 
     permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
     return permits[:5]
 
-# Combine multiple conditions into one function
-def get_permits_by_conditions(db: Session, applicant: str = None, status: str = None, address: str = None, latitude: float = None, longitude: float = None, skip: int = 0, limit: int = 100):
+# Build a query based on multiple conditions
+def get_permits_by_conditions(db: Session, applicant: str = None, status: str = None, address: str = None, latitude: float = None, longitude: float = None, default_status: bool = True, skip: int = 0, limit: int = 100):
     # If there is no condition, simply return the permits with the offset and limit.
     if not any([applicant, status, address, latitude, longitude]):
         return get_permits(db=db, skip=skip, limit=limit)
@@ -121,6 +121,8 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
         query = query.filter(MobileFoodFacilityPermit.applicant.ilike(f"%{applicant}%"))
     if status:
         query = query.filter(MobileFoodFacilityPermit.status == status)
+    elif latitude and longitude and default_status:
+        query = query.filter(MobileFoodFacilityPermit.status == "APPROVED")
     if address:
         query = query.filter(MobileFoodFacilityPermit.address.ilike(f"%{address}%"))
 
@@ -136,7 +138,8 @@ def get_permits_by_conditions(db: Session, applicant: str = None, status: str = 
         # use the haversine function to calculate distances and sort the permits by distance
         permits.sort(key=lambda permit: haversine(longitude, latitude, permit.longitude, permit.latitude))
         
-        # Slice the sorted list to only keep the closest ones
+        # Slice the sorted list to only keep the 5 closest ones
+        limit = 5
         permits = permits[:limit]
 
         return permits
