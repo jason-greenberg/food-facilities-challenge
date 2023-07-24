@@ -2,10 +2,9 @@ from fastapi import FastAPI
 from api import auth_routes, user_routes, permit_routes
 
 from db.db_setup import engine
-from db.models import user, location, permit
+from db.models import user, permit
 
 user.Base.metadata.create_all(bind=engine)
-location.Base.metadata.create_all(bind=engine)
 permit.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(

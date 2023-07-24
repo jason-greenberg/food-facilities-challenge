@@ -6,7 +6,6 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.permit import MobileFoodFacilityPermit
-from db.models.location import Location
 from pydantic_schemas.permit import PermitCreate
 
 POSITIONSTACK_API_KEY = os.getenv('POSITIONSTACK_API_KEY')
@@ -38,9 +37,6 @@ def create_permit(db: Session, permit: PermitCreate):
         longitude = location_data['longitude']
     else:
         raise ValueError("The positionstack API did not return any results for this address")
-
-    # Create new Location with a specific id
-    location = Location(id=permit.location_id, latitude=latitude, longitude=longitude)
 
     db.add(location)
     db.commit()

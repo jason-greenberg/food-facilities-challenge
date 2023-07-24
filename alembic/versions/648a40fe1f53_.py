@@ -33,20 +33,6 @@ def upgrade() -> None:
 
     if environment == "production":
         op.execute(f"ALTER TABLE users SET SCHEMA {SCHEMA};")
-
-    op.create_table('locations',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('latitude', sa.String(), nullable=False),
-    sa.Column('longitude', sa.String(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-
-    op.create_index(op.f('ix_locations_id'), 'locations', ['id'], unique=False)
-
-    if environment == "production":
-        op.execute(f"ALTER TABLE locations SET SCHEMA {SCHEMA};")
     
     op.create_table('mobile_food_facility_permits',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -54,14 +40,31 @@ def upgrade() -> None:
     sa.Column('applicant', sa.String(), nullable=False),
     sa.Column('facility_type', sa.String(), nullable=False),
     sa.Column('cnn', sa.Integer(), nullable=False),
-    sa.Column('location_description', sa.String(), nullable=False),
+    sa.Column('location_description', sa.String(), nullable=True),
     sa.Column('address', sa.String(), nullable=False),
-    sa.Column('blocklot', sa.String(), nullable=False),
-    sa.Column('block', sa.String(), nullable=False),
-    sa.Column('lot', sa.String(), nullable=False),
+    sa.Column('blocklot', sa.String(), nullable=True),
+    sa.Column('block', sa.String(), nullable=True),
+    sa.Column('lot', sa.String(), nullable=True),
     sa.Column('permit', sa.String(), nullable=False),
     sa.Column('status', sa.String(), nullable=False),
-    sa.Column('food_items', sa.String(), nullable=False),
+    sa.Column('food_items', sa.String(), nullable=True),
+    sa.Column('x', sa.Float(), nullable=True),
+    sa.Column('y', sa.Float(), nullable=True),
+    sa.Column('latitude', sa.Float(), nullable=False),
+    sa.Column('longitude', sa.Float(), nullable=False),
+    sa.Column('schedule', sa.String(), nullable=True),
+    sa.Column('dayshours', sa.String(), nullable=True),
+    sa.Column('noisent', sa.DateTime(), nullable=True),
+    sa.Column('approved', sa.DateTime(), nullable=True),
+    sa.Column('received', sa.String(), nullable=False),
+    sa.Column('priorpermit', sa.Boolean(), nullable=False),
+    sa.Column('expirationdate', sa.DateTime(), nullable=True),
+    sa.Column('location', sa.String(), nullable=True),
+    sa.Column('fire_prevention_districts', sa.Integer(), nullable=True),
+    sa.Column('police_districts', sa.Integer(), nullable=True),
+    sa.Column('supervisor_districts', sa.Integer(), nullable=True),
+    sa.Column('zip_codes', sa.Integer(), nullable=True),
+    sa.Column('neighborhoods_old', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
@@ -82,6 +85,4 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
-    op.drop_index(op.f('ix_locations_id'), table_name='locations')
-    op.drop_table('locations')
     # ### end Alembic commands ###
