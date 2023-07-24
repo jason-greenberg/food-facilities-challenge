@@ -1,5 +1,6 @@
 import os
 import requests
+import csv
 
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import and_
@@ -18,6 +19,10 @@ def get_permit(db: Session, permit_id: int):
 def get_permits(db: Session, skip: int = 0, limit: int = 100):
     return db.query(MobileFoodFacilityPermit).offset(skip).limit(limit).all()
 
+def log_unresolved_addresses(address):
+    with open('unresolved_addresses.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([address])
 
 # create permit
 def create_permit(db: Session, permit: PermitCreate):
@@ -38,13 +43,16 @@ def create_permit(db: Session, permit: PermitCreate):
             permit.latitude = location_data['latitude']
             permit.longitude = location_data['longitude']
         else:
-            raise ValueError("The positionstack API did not return any results for this address")
+            # Instead of raising error, log the problem and return None
+            log_unresolved_addresses(address)
+            return None
     # Create new permit
     db_permit = MobileFoodFacilityPermit(**permit.dict())
     db.add(db_permit)
     db.commit()
     db.refresh(db_permit)
     return db_permit
+
 
 
 # Search by name of applicant with optional "Status" field filter.

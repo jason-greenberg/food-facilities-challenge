@@ -23,7 +23,7 @@ class PermitBase(BaseModel):
     dayshours: Optional[str]
     noisent: Optional[datetime]
     approved: Optional[datetime]
-    received: str
+    received: Optional[datetime]
     priorpermit: bool
     expirationdate: Optional[datetime]
     location: Optional[str]

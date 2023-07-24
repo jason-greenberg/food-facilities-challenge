@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 
 from db.db_setup import Base
-from db.models import user, location, permit
+from db.models import user, permit
 
 # Load .env file
 load_dotenv()

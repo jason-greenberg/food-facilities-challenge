@@ -20,17 +20,17 @@ def seed_permits(db: Session):
             # Convert date strings to datetime objects
             approved = datetime.strptime(row[19], '%m/%d/%Y %I:%M:%S %p') if row[19] else None
             
-            # Convert received to datetime object if it's not empty
-            received = datetime.strptime(row[21], '%Y%m%d') if row[21] else None
+            # Convert received to datetime object if it's not empty or 0
+            received = datetime.strptime(row[20], '%Y%m%d') if row[20] not in ['', '0'] else None
 
             # Convert expirationdate to datetime object if it's not empty
-            expiration_date = datetime.strptime(row[23], '%m/%d/%Y %I:%M:%S %p') if row[23] else None
+            expiration_date = datetime.strptime(row[22], '%m/%d/%Y %I:%M:%S %p') if row[22] else None
 
             # Convert NOISent to datetime object if it's not empty
             noisent = datetime.strptime(row[18], '%m/%d/%Y %I:%M:%S %p') if row[18] else None
 
             # Convert prior_permit to Boolean
-            prior_permit = True if row[22] == '1' else False
+            prior_permit = True if row[21] == '1' else False
 
             # Handle instances where X or Y does not represent a float
             try:
@@ -68,16 +68,19 @@ def seed_permits(db: Session):
                 received=received,
                 priorpermit=prior_permit,
                 expirationdate=expiration_date,
-                location=row[24],
-                fire_prevention_districts=int(row[25]) if row[25] else None,
-                police_districts=int(row[26]) if row[26] else None,
-                supervisor_districts=int(row[27]) if row[27] else None,
-                zip_codes=int(row[28]) if row[28] else None,
-                neighborhoods_old=int(row[29]) if row[29] else None,
+                location=row[23],
+                fire_prevention_districts=int(row[24]) if row[24] else None,
+                police_districts=int(row[25]) if row[25] else None,
+                supervisor_districts=int(row[26]) if row[26] else None,
+                zip_codes=int(row[27]) if row[27] else None,
+                neighborhoods_old=int(row[28]) if row[28] else None,
             )
 
-            # Create the permit
-            create_permit(db=db, permit=permit_create)
+            # Create the permit and skip if None
+            permit = create_permit(db=db, permit=permit_create)
+            if permit is None:
+                continue
+
 
 
 def undo_permits(db: Session):
